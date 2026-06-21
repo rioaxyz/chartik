@@ -11,7 +11,7 @@ const TOPIC_META: { topic: Topic; blurb: string; emoji: string }[] = [
   },
   {
     topic: "next-move",
-    blurb: "Read 15–30 candles and predict what happens next.",
+    blurb: "Read trends, flags, triangles & wedges — predict the next move.",
     emoji: "📈",
   },
   {
