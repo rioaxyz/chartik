@@ -16,44 +16,6 @@ function mulberry32(seed: number): () => number {
   };
 }
 
-interface SeriesOptions {
-  seed: number;
-  length: number;
-  start: number;
-  /** Average price change per candle. Positive = uptrend, negative = downtrend. */
-  drift: number;
-  /** Candle-to-candle volatility (size of the random moves). */
-  volatility: number;
-  /** Pull back toward the starting price each step (creates a sideways range). */
-  meanReversion?: number;
-}
-
-/** Generate a realistic-looking OHLC series with a controllable trend. */
-function genSeries(opts: SeriesOptions): Candle[] {
-  const { seed, length, start, drift, volatility, meanReversion = 0 } = opts;
-  const rand = mulberry32(seed);
-  const candles: Candle[] = [];
-  let price = start;
-
-  for (let i = 0; i < length; i++) {
-    const open = price;
-    const reversion = meanReversion * (start - price);
-    const move = drift + reversion + (rand() - 0.5) * 2 * volatility;
-    const close = Math.max(1, open + move);
-    // Wicks extend beyond the body by a fraction of the volatility.
-    const high = Math.max(open, close) + rand() * volatility * 0.8;
-    const low = Math.min(open, close) - rand() * volatility * 0.8;
-    candles.push({
-      open: round(open),
-      high: round(high),
-      low: round(low),
-      close: round(close),
-    });
-    price = close;
-  }
-  return candles;
-}
-
 function round(n: number): number {
   return Math.round(n * 100) / 100;
 }
@@ -106,6 +68,49 @@ function candlesFromPath(seed: number, path: number[], jitter = 1.1): Candle[] {
     const close = path[i] + (rand() - 0.5) * jitter;
     const high = Math.max(open, close) + rand() * jitter;
     const low = Math.min(open, close) - rand() * jitter;
+    candles.push({
+      open: round(open),
+      high: round(high),
+      low: round(low),
+      close: round(close),
+    });
+    prevClose = close;
+  }
+  return candles;
+}
+
+interface MoveOpts {
+  seed: number;
+  /** Body diversity — higher means larger, more varied candle bodies. */
+  residVol?: number;
+  /** Mean-reversion on the body noise so price still tracks the shape. */
+  pull?: number;
+  /** Maximum wick length; each wick is randomly skewed up to this. */
+  wickMax?: number;
+}
+
+/**
+ * Turn a smooth price skeleton into a DIVERSE candle series for the
+ * "What happens next?" charts. Bodies follow a mean-reverting random walk
+ * around the skeleton, so sizes and colors vary candle-to-candle while the
+ * overall pattern shape is preserved. Wicks are randomly skewed, producing a
+ * realistic mix of marubozu-like, long-wick, and balanced candles — and
+ * keeping bodies substantial rather than uniformly tiny.
+ */
+function richCandles(path: number[], opts: MoveOpts): Candle[] {
+  const { seed, residVol = 5, pull = 0.5, wickMax = 8 } = opts;
+  const rand = mulberry32(seed);
+  const candles: Candle[] = [];
+  let resid = 0;
+  let prevClose = path[0];
+  for (let i = 0; i < path.length; i++) {
+    resid = resid * (1 - pull) + (rand() - 0.5) * 2 * residVol;
+    const open = prevClose;
+    const close = Math.max(1, path[i] + resid);
+    const top = Math.max(open, close);
+    const bottom = Math.min(open, close);
+    const high = top + Math.pow(rand(), 1.6) * wickMax;
+    const low = Math.max(0.5, bottom - Math.pow(rand(), 1.6) * wickMax);
     candles.push({
       open: round(open),
       high: round(high),
@@ -278,64 +283,347 @@ export const QUESTIONS: Question[] = [
       "Open equals the high and close equals the low, so the red body has no wicks. That is a Bearish Marubozu: sellers dominated from the first tick to the last — a sign of strong downward conviction.",
   },
 
-  // ---- Topic 2: What happens next? — read the trend in 15–30 candles ----
+  // ---- Topic 2: What happens next? — predict the move from the setup ----
   {
-    id: "nm-1",
+    id: "nm-uptrend",
     topic: "next-move",
-    candles: genSeries({ seed: 11, length: 22, start: 100, drift: 2.4, volatility: 2.2 }),
-    prompt:
-      "These ~22 candles lead up to now. What is the most likely next move?",
+    candles: richCandles(skeleton(80, seg(80, 150, 25)), { seed: 211 }),
+    prompt: "These candles lead up to now. What is the most likely next move?",
     choices: C3,
     answerId: "bull",
     explanation:
-      "A clean staircase of higher highs and higher lows is a strong uptrend. With momentum firmly up and no sign of a reversal, the textbook read is continued bullish momentum.",
+      "A clean staircase of higher highs and higher lows is a strong uptrend. With momentum firmly up and no reversal in sight, the textbook read is continued bullish momentum.",
   },
   {
-    id: "nm-2",
+    id: "nm-downtrend",
     topic: "next-move",
-    candles: genSeries({ seed: 7, length: 24, start: 160, drift: -2.6, volatility: 2.4 }),
-    prompt: "Based on this chart, what is the likely next move?",
+    candles: richCandles(skeleton(150, seg(150, 80, 25)), { seed: 212 }),
+    prompt: "Read the momentum. What comes next?",
     choices: C3,
     answerId: "bear",
     explanation:
       "Lower highs and lower lows define a downtrend. Sellers are in control with no base forming, so the expectation is continued bearish momentum.",
   },
   {
-    id: "nm-3",
+    id: "nm-cup-handle",
     topic: "next-move",
-    candles: genSeries({
-      seed: 21,
-      length: 26,
-      start: 100,
-      drift: 0,
-      volatility: 3,
-      meanReversion: 0.35,
-    }),
-    prompt: "What is the most likely next move here?",
-    choices: C3,
-    answerId: "side",
-    explanation:
-      "Price keeps bouncing between roughly the same support and resistance with no net progress. That is consolidation — the highest-probability read is more sideways chop until it breaks out.",
-  },
-  {
-    id: "nm-4",
-    topic: "next-move",
-    candles: genSeries({ seed: 33, length: 20, start: 90, drift: 3.0, volatility: 2.0 }),
-    prompt: "Read the momentum. What comes next?",
+    candles: richCandles(
+      skeleton(120, curve(120, 118, 16, -30), seg(118, 110, 5), seg(110, 113, 3)),
+      { seed: 213 },
+    ),
+    prompt: "A rounded base formed, then a small dip on the right. What's next?",
     choices: C3,
     answerId: "bull",
     explanation:
-      "Steady higher closes with shallow pullbacks show buyers stepping in on every dip. This is healthy bullish momentum likely to continue.",
+      "A smooth U-shaped 'cup' followed by a shallow 'handle' pullback is a Cup and Handle — a bullish continuation. The expected resolution is a breakout to the upside.",
   },
   {
-    id: "nm-5",
+    id: "nm-asc-triangle",
     topic: "next-move",
-    candles: genSeries({ seed: 5, length: 28, start: 140, drift: -2.2, volatility: 2.6 }),
-    prompt: "What is the most probable next move?",
+    candles: richCandles(
+      skeleton(
+        108,
+        seg(108, 130, 4),
+        seg(130, 116, 3),
+        seg(116, 130, 3),
+        seg(130, 121, 3),
+        seg(121, 130, 3),
+        seg(130, 126, 2),
+      ),
+      { seed: 214 },
+    ),
+    prompt: "Price keeps hitting the same ceiling while the lows rise. What's next?",
+    choices: C3,
+    answerId: "bull",
+    explanation:
+      "Flat resistance with rising lows is an Ascending Triangle. Buyers grow more aggressive into a fixed ceiling, which usually breaks upward — bullish.",
+  },
+  {
+    id: "nm-bull-flag",
+    topic: "next-move",
+    candles: richCandles(
+      skeleton(
+        85,
+        seg(85, 132, 8),
+        seg(132, 124, 3),
+        seg(124, 128, 2),
+        seg(128, 121, 3),
+        seg(121, 125, 2),
+      ),
+      { seed: 215 },
+    ),
+    prompt: "A sharp rally is drifting lower in a small channel. What's next?",
+    choices: C3,
+    answerId: "bull",
+    explanation:
+      "A steep pole followed by a gentle down-sloping channel is a Bull Flag — a bullish continuation. After the brief pause, the prior uptrend typically resumes.",
+  },
+  {
+    id: "nm-falling-wedge",
+    topic: "next-move",
+    candles: richCandles(
+      skeleton(
+        140,
+        seg(140, 124, 3),
+        seg(124, 131, 3),
+        seg(131, 117, 3),
+        seg(117, 123, 3),
+        seg(123, 113, 3),
+        seg(113, 117, 3),
+      ),
+      { seed: 216 },
+    ),
+    prompt: "Highs and lows are both falling but converging. What's next?",
+    choices: C3,
+    answerId: "bull",
+    explanation:
+      "A Falling Wedge — lower highs and lower lows narrowing together — looks bearish but usually resolves UP. Selling pressure fades as the range tightens.",
+  },
+  {
+    id: "nm-inv-hns",
+    topic: "next-move",
+    candles: richCandles(
+      skeleton(
+        140,
+        seg(140, 118, 5),
+        seg(118, 128, 4),
+        seg(128, 104, 5),
+        seg(104, 127, 5),
+        seg(127, 116, 4),
+        seg(116, 123, 3),
+      ),
+      { seed: 217 },
+    ),
+    prompt: "A low, then a deeper low, then a higher low. What's next?",
+    choices: C3,
+    answerId: "bull",
+    explanation:
+      "A trough, a deeper trough (the head), then a shallower trough (right shoulder) is an Inverse Head and Shoulders — a bullish reversal that breaks up through the neckline.",
+  },
+  {
+    id: "nm-double-bottom",
+    topic: "next-move",
+    candles: richCandles(
+      skeleton(145, seg(145, 104, 7), seg(104, 124, 5), seg(124, 106, 6), seg(106, 120, 5)),
+      { seed: 218 },
+    ),
+    prompt: "Price tested the same low twice and is turning up. What's next?",
+    choices: C3,
+    answerId: "bull",
+    explanation:
+      "Two distinct lows at the same level with a bounce between them form a Double Bottom ('W') — a bullish reversal. Holding support twice signals buyers taking control.",
+  },
+  {
+    id: "nm-bull-pennant",
+    topic: "next-move",
+    candles: richCandles(
+      skeleton(
+        85,
+        seg(85, 132, 8),
+        seg(132, 121, 2),
+        seg(121, 129, 2),
+        seg(129, 123, 2),
+        seg(123, 127, 2),
+        seg(127, 125, 2),
+      ),
+      { seed: 219 },
+    ),
+    prompt: "A strong rally is coiling into a tight triangle. What's next?",
+    choices: C3,
+    answerId: "bull",
+    explanation:
+      "A sharp pole followed by a small converging coil is a Bullish Pennant — a continuation pattern. The energy from the rally usually pushes price out the top.",
+  },
+  {
+    id: "nm-rounding-bottom",
+    topic: "next-move",
+    candles: richCandles(skeleton(125, curve(125, 128, 22, -32)), { seed: 220 }),
+    prompt: "Price carved a long, smooth bowl and is curling up. What's next?",
+    choices: C3,
+    answerId: "bull",
+    explanation:
+      "A gradual, saucer-shaped base with no sharp lows is a Rounding Bottom — a slow shift from sellers to buyers. The curl upward points to bullish continuation.",
+  },
+  {
+    id: "nm-desc-triangle",
+    topic: "next-move",
+    candles: richCandles(
+      skeleton(
+        122,
+        seg(122, 100, 4),
+        seg(100, 116, 3),
+        seg(116, 100, 3),
+        seg(100, 110, 3),
+        seg(110, 100, 3),
+        seg(100, 105, 2),
+      ),
+      { seed: 221 },
+    ),
+    prompt: "Price keeps hitting the same floor while the highs drop. What's next?",
     choices: C3,
     answerId: "bear",
     explanation:
-      "A persistent down-slope with each bounce failing lower is a classic downtrend. Until a base or higher low forms, bearish continuation is the base case.",
+      "Flat support with lower highs is a Descending Triangle. Sellers press into a fixed floor, which usually gives way to the downside — bearish.",
+  },
+  {
+    id: "nm-bear-flag",
+    topic: "next-move",
+    candles: richCandles(
+      skeleton(
+        150,
+        seg(150, 103, 8),
+        seg(103, 111, 3),
+        seg(111, 107, 2),
+        seg(107, 114, 3),
+        seg(114, 109, 2),
+      ),
+      { seed: 222 },
+    ),
+    prompt: "A sharp drop is drifting back up in a small channel. What's next?",
+    choices: C3,
+    answerId: "bear",
+    explanation:
+      "A steep down-pole followed by a gentle up-sloping channel is a Bear Flag — a bearish continuation. The pause usually gives way to another leg down.",
+  },
+  {
+    id: "nm-rising-wedge",
+    topic: "next-move",
+    candles: richCandles(
+      skeleton(
+        95,
+        seg(95, 112, 3),
+        seg(112, 104, 3),
+        seg(104, 118, 3),
+        seg(118, 112, 3),
+        seg(112, 122, 3),
+        seg(122, 118, 3),
+      ),
+      { seed: 223 },
+    ),
+    prompt: "Highs and lows are both rising but converging. What's next?",
+    choices: C3,
+    answerId: "bear",
+    explanation:
+      "A Rising Wedge — higher highs and higher lows narrowing together — looks bullish but usually resolves DOWN. The advance loses steam as the range tightens.",
+  },
+  {
+    id: "nm-hns",
+    topic: "next-move",
+    candles: richCandles(
+      skeleton(
+        85,
+        seg(85, 112, 5),
+        seg(112, 102, 4),
+        seg(102, 128, 5),
+        seg(128, 102, 5),
+        seg(102, 112, 4),
+        seg(112, 106, 3),
+      ),
+      { seed: 224 },
+    ),
+    prompt: "A peak, a higher peak, then a lower peak rolling over. What's next?",
+    choices: C3,
+    answerId: "bear",
+    explanation:
+      "A peak (left shoulder), a higher peak (head), then a lower peak (right shoulder) is a Head and Shoulders — a bearish reversal that breaks down through the neckline.",
+  },
+  {
+    id: "nm-double-top",
+    topic: "next-move",
+    candles: richCandles(
+      skeleton(85, seg(85, 130, 7), seg(130, 110, 5), seg(110, 129, 6), seg(129, 116, 5)),
+      { seed: 225 },
+    ),
+    prompt: "Price hit the same high twice and is rolling over. What's next?",
+    choices: C3,
+    answerId: "bear",
+    explanation:
+      "Two highs at the same level with a dip between them form a Double Top ('M') — a bearish reversal. Failing twice at resistance hands control to sellers.",
+  },
+  {
+    id: "nm-bear-pennant",
+    topic: "next-move",
+    candles: richCandles(
+      skeleton(
+        150,
+        seg(150, 103, 8),
+        seg(103, 113, 2),
+        seg(113, 106, 2),
+        seg(106, 111, 2),
+        seg(111, 108, 2),
+        seg(108, 110, 2),
+      ),
+      { seed: 226 },
+    ),
+    prompt: "A sharp sell-off is coiling into a tight triangle. What's next?",
+    choices: C3,
+    answerId: "bear",
+    explanation:
+      "A steep down-pole followed by a small converging coil is a Bearish Pennant — a continuation pattern. The coil usually breaks downward in the trend's direction.",
+  },
+  {
+    id: "nm-rounding-top",
+    topic: "next-move",
+    candles: richCandles(skeleton(110, curve(110, 107, 22, 32)), { seed: 227 }),
+    prompt: "Price arched over in a smooth dome and is rolling down. What's next?",
+    choices: C3,
+    answerId: "bear",
+    explanation:
+      "A smooth, inverted-bowl top is a Rounding Top — a gradual shift from buyers to sellers. The roll-over points to bearish continuation.",
+  },
+  {
+    id: "nm-rectangle",
+    topic: "next-move",
+    candles: richCandles(
+      skeleton(
+        106,
+        seg(106, 124, 4),
+        seg(124, 107, 4),
+        seg(107, 124, 4),
+        seg(124, 107, 4),
+        seg(107, 122, 4),
+      ),
+      { seed: 228 },
+    ),
+    prompt: "Price keeps bouncing between the same floor and ceiling. What's next?",
+    choices: C3,
+    answerId: "side",
+    explanation:
+      "A Rectangle range — flat support and flat resistance with no net progress — is consolidation. Until one side breaks, more sideways chop is the base case.",
+  },
+  {
+    id: "nm-sym-triangle",
+    topic: "next-move",
+    candles: richCandles(
+      skeleton(
+        100,
+        seg(100, 128, 4),
+        seg(128, 104, 3),
+        seg(104, 123, 3),
+        seg(123, 110, 3),
+        seg(110, 119, 3),
+        seg(119, 114, 3),
+      ),
+      { seed: 229 },
+    ),
+    prompt: "Highs are falling and lows are rising into a point. What's next?",
+    choices: C3,
+    answerId: "side",
+    explanation:
+      "A Symmetrical Triangle coils with lower highs AND higher lows and no prior trend to lean on. Direction is undecided until the breakout, so the immediate read is more sideways consolidation.",
+  },
+  {
+    id: "nm-coil",
+    topic: "next-move",
+    candles: richCandles(
+      skeleton(112, seg(112, 117, 5), seg(117, 111, 5), seg(111, 116, 5), seg(116, 112, 5)),
+      { seed: 230, residVol: 2, wickMax: 3.5 },
+    ),
+    prompt: "Volatility has dried up into a tight, flat range. What's next?",
+    choices: C3,
+    answerId: "side",
+    explanation:
+      "Small candles drifting in a narrow band with no direction is low-volatility consolidation. The highest-probability near-term outcome is continued sideways action until a catalyst.",
   },
 
   // ---- Topic 3: Pattern recognition — multi-candle formations ----
