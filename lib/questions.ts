@@ -196,6 +196,11 @@ function cp(...ids: CpId[]) {
   return ids.map((id) => CP[id]);
 }
 
+/** Build letter choices (A, B, C…) for the "Buy / Sell / Stop" questions. */
+function letters(...labels: string[]) {
+  return labels.map((l) => ({ id: l, label: l }));
+}
+
 /**
  * The full question bank. Hand-tuned so each visual has a clear, defensible
  * "textbook" answer that the explanation backs up.
@@ -1051,6 +1056,353 @@ export const QUESTIONS: Question[] = [
     answerId: "pennant",
     explanation:
       "A sharp move (the pole) followed by a small CONVERGING triangle of consolidation, then a breakout. A Pennant is like a flag, but its consolidation tightens to a point instead of running parallel.",
+  },
+
+  // ---- Topic 5: Buy, Sell & Stops — pick the right location (A, B, C…) ----
+  {
+    id: "bs-asc-buy",
+    topic: "buy-sell",
+    candles: richCandles(
+      skeleton(
+        100,
+        seg(100, 128, 5),
+        seg(128, 114, 4),
+        seg(114, 128, 4),
+        seg(128, 119, 3),
+        seg(119, 128, 3),
+        seg(128, 145, 6),
+      ),
+      { seed: 401, residVol: 3, wickMax: 5 },
+    ),
+    markers: [
+      { label: "A", index: 9, at: "low" },
+      { label: "B", index: 13, at: "high" },
+      { label: "C", index: 16, at: "low" },
+      { label: "D", index: 20, at: "high" },
+      { label: "E", index: 25, at: "high" },
+    ],
+    prompt:
+      "This ascending triangle just broke out. Where is the highest-probability BUY entry?",
+    choices: letters("A", "B", "C", "D", "E"),
+    answerId: "D",
+    explanation:
+      "Buy as price breaks and closes above the flat resistance — that's when the pattern confirms (D). A and C are inside the triangle, B is buying straight into resistance, and E is chasing far above the breakout with poor risk-to-reward.",
+  },
+  {
+    id: "bs-asc-stop",
+    topic: "buy-sell",
+    candles: richCandles(
+      skeleton(
+        100,
+        seg(100, 128, 5),
+        seg(128, 114, 4),
+        seg(114, 128, 4),
+        seg(128, 119, 3),
+        seg(119, 128, 3),
+        seg(128, 145, 6),
+      ),
+      { seed: 402, residVol: 3, wickMax: 5 },
+    ),
+    markers: [
+      { label: "A", index: 9, at: "low" },
+      { label: "B", index: 16, at: "low" },
+      { label: "C", index: 20, at: "high" },
+      { label: "D", index: 23, at: "high" },
+    ],
+    prompt:
+      "You bought the breakout of this ascending triangle. Where should the STOP LOSS go?",
+    choices: letters("A", "B", "C", "D"),
+    answerId: "B",
+    explanation:
+      "Protect the trade just below the most recent higher low — the broken resistance now acting as support (B). A is unnecessarily wide (worse risk-to-reward), C sits right at your entry so any wobble stops you out, and D is above your entry — not a stop at all.",
+  },
+  {
+    id: "bs-cup-buy",
+    topic: "buy-sell",
+    candles: richCandles(
+      skeleton(
+        120,
+        curve(120, 118, 16, -30),
+        seg(118, 111, 4),
+        seg(111, 130, 6),
+      ),
+      { seed: 403, residVol: 2.6, wickMax: 4.5 },
+    ),
+    markers: [
+      { label: "A", index: 8, at: "low" },
+      { label: "B", index: 16, at: "high" },
+      { label: "C", index: 20, at: "low" },
+      { label: "D", index: 24, at: "high" },
+      { label: "E", index: 26, at: "high" },
+    ],
+    prompt: "Where is the BUY entry for this cup and handle?",
+    choices: letters("A", "B", "C", "D", "E"),
+    answerId: "D",
+    explanation:
+      "Buy on the breakout above the cup's rim as the handle completes (D). A is the bottom of the cup, B is the rim before the handle forms, C is the handle low, and E is chasing the extended breakout.",
+  },
+  {
+    id: "bs-bull-flag-buy",
+    topic: "buy-sell",
+    candles: richCandles(
+      skeleton(
+        90,
+        seg(90, 132, 7),
+        seg(132, 123, 3),
+        seg(123, 127, 2),
+        seg(127, 120, 3),
+        seg(120, 124, 2),
+        seg(124, 150, 6),
+      ),
+      { seed: 404, residVol: 3, wickMax: 5 },
+    ),
+    markers: [
+      { label: "A", index: 7, at: "high" },
+      { label: "B", index: 10, at: "low" },
+      { label: "C", index: 15, at: "low" },
+      { label: "D", index: 19, at: "high" },
+      { label: "E", index: 23, at: "high" },
+    ],
+    prompt: "A bull flag formed after a strong rally. Where's the BUY entry?",
+    choices: letters("A", "B", "C", "D", "E"),
+    answerId: "D",
+    explanation:
+      "Enter as price breaks above the flag's upper boundary and resumes the trend (D). A is the top of the pole before the pullback, B and C are inside the flag, and E is chasing the extended move.",
+  },
+  {
+    id: "bs-dbl-bottom-buy",
+    topic: "buy-sell",
+    candles: richCandles(
+      skeleton(
+        130,
+        seg(130, 102, 6),
+        seg(102, 120, 5),
+        seg(120, 104, 6),
+        seg(104, 122, 7),
+      ),
+      { seed: 405, residVol: 3, wickMax: 5 },
+    ),
+    markers: [
+      { label: "A", index: 6, at: "low" },
+      { label: "B", index: 11, at: "high" },
+      { label: "C", index: 17, at: "low" },
+      { label: "D", index: 24, at: "high" },
+    ],
+    prompt: "Where is the BUY entry for this double bottom?",
+    choices: letters("A", "B", "C", "D"),
+    answerId: "D",
+    explanation:
+      "Buy on the breakout above the neckline — the peak between the two lows (D). A and C are the lows themselves (catching a falling knife with no confirmation), and B is the interim peak.",
+  },
+  {
+    id: "bs-dbl-top-sell",
+    topic: "buy-sell",
+    candles: richCandles(
+      skeleton(
+        95,
+        seg(95, 130, 6),
+        seg(130, 112, 5),
+        seg(112, 129, 6),
+        seg(129, 108, 7),
+      ),
+      { seed: 406, residVol: 3, wickMax: 5 },
+    ),
+    markers: [
+      { label: "A", index: 6, at: "high" },
+      { label: "B", index: 11, at: "low" },
+      { label: "C", index: 17, at: "high" },
+      { label: "D", index: 23, at: "low" },
+      { label: "E", index: 24, at: "low" },
+    ],
+    prompt: "You want to SHORT this double top. Where's the confirmed entry?",
+    choices: letters("A", "B", "C", "D", "E"),
+    answerId: "D",
+    explanation:
+      "Short when price breaks below the neckline (the low between the two peaks) — that confirms the reversal (D). C, the second peak, is a more aggressive unconfirmed entry; A and B are mid-pattern; E is chasing after the move is underway.",
+  },
+  {
+    id: "bs-hns-sell",
+    topic: "buy-sell",
+    candles: richCandles(
+      skeleton(
+        85,
+        seg(85, 112, 5),
+        seg(112, 102, 4),
+        seg(102, 128, 5),
+        seg(128, 102, 5),
+        seg(102, 113, 4),
+        seg(113, 90, 5),
+      ),
+      { seed: 407, residVol: 3, wickMax: 5 },
+    ),
+    markers: [
+      { label: "A", index: 5, at: "high" },
+      { label: "B", index: 14, at: "high" },
+      { label: "C", index: 23, at: "high" },
+      { label: "D", index: 26, at: "low" },
+      { label: "E", index: 28, at: "low" },
+    ],
+    prompt: "You're shorting this head and shoulders. Where's the entry trigger?",
+    choices: letters("A", "B", "C", "D", "E"),
+    answerId: "D",
+    explanation:
+      "Short on the break below the neckline that connects the two troughs — that confirms the top (D). C (the right shoulder) is an early, unconfirmed entry, B is the head, A the left shoulder, and E is well into the move.",
+  },
+  {
+    id: "bs-range-buy",
+    topic: "buy-sell",
+    candles: richCandles(
+      skeleton(
+        110,
+        seg(110, 126, 4),
+        seg(126, 107, 4),
+        seg(107, 125, 4),
+        seg(125, 108, 4),
+        seg(108, 124, 4),
+      ),
+      { seed: 408, residVol: 3, wickMax: 5 },
+    ),
+    markers: [
+      { label: "A", index: 2, at: "high" },
+      { label: "B", index: 4, at: "high" },
+      { label: "C", index: 8, at: "low" },
+      { label: "D", index: 12, at: "high" },
+      { label: "E", index: 18, at: "high" },
+    ],
+    prompt: "Price is stuck in a range. Where's the best place to BUY?",
+    choices: letters("A", "B", "C", "D", "E"),
+    answerId: "C",
+    explanation:
+      "In a range you buy near support — the bottom of the channel (C) — for the best risk-to-reward, with a stop just beneath it. B and D are at resistance (where you'd sell, not buy), and A and E are mid-range with no edge.",
+  },
+  {
+    id: "bs-range-sell",
+    topic: "buy-sell",
+    candles: richCandles(
+      skeleton(
+        108,
+        seg(108, 124, 4),
+        seg(124, 106, 4),
+        seg(106, 125, 4),
+        seg(125, 108, 4),
+        seg(108, 124, 4),
+      ),
+      { seed: 409, residVol: 3, wickMax: 5 },
+    ),
+    markers: [
+      { label: "A", index: 6, at: "low" },
+      { label: "B", index: 8, at: "low" },
+      { label: "C", index: 12, at: "high" },
+      { label: "D", index: 16, at: "low" },
+      { label: "E", index: 18, at: "high" },
+    ],
+    prompt: "Price keeps ranging. Where's the best place to SELL (or short)?",
+    choices: letters("A", "B", "C", "D", "E"),
+    answerId: "C",
+    explanation:
+      "Sell or short near resistance — the top of the range (C), where price has repeatedly reversed. B and D are at support (where you'd buy), and A and E are mid-range.",
+  },
+  {
+    id: "bs-support-stop",
+    topic: "buy-sell",
+    candles: richCandles(
+      skeleton(90, seg(90, 120, 6), seg(120, 108, 4), seg(108, 130, 7)),
+      { seed: 410, residVol: 3, wickMax: 5 },
+    ),
+    markers: [
+      { label: "A", index: 2, at: "low" },
+      { label: "B", index: 6, at: "high" },
+      { label: "C", index: 10, at: "low" },
+      { label: "D", index: 17, at: "high" },
+    ],
+    prompt:
+      "You're long after the bounce off support. Where should the protective STOP LOSS sit?",
+    choices: letters("A", "B", "C", "D"),
+    answerId: "C",
+    explanation:
+      "Place the stop just below the most recent swing low — the support the bounce confirmed (C). If price falls back through it, the trade thesis is wrong. A is unnecessarily wide, B sits up inside the trend where normal pullbacks would stop you out, and D is above price entirely.",
+  },
+  {
+    id: "bs-dbl-bottom-aggressive",
+    topic: "buy-sell",
+    candles: richCandles(
+      skeleton(
+        130,
+        seg(130, 102, 6),
+        seg(102, 120, 5),
+        seg(120, 104, 6),
+        seg(104, 122, 7),
+      ),
+      { seed: 411, residVol: 3, wickMax: 5 },
+    ),
+    markers: [
+      { label: "A", index: 6, at: "low" },
+      { label: "B", index: 11, at: "high" },
+      { label: "C", index: 17, at: "low" },
+      { label: "D", index: 24, at: "high" },
+    ],
+    prompt:
+      "An aggressive trader enters BEFORE the breakout confirms. On this double bottom, where's the aggressive BUY?",
+    choices: letters("A", "B", "C", "D"),
+    answerId: "C",
+    explanation:
+      "The aggressive entry buys the second low (C) as price holds the prior support, with a tight stop just beneath it. That's a far better price than waiting for the neckline breakout (D) — at the cost of more risk if support fails. A is the first low (not yet a confirmed double bottom) and B is the interim peak.",
+  },
+  {
+    id: "bs-dbl-top-aggressive",
+    topic: "buy-sell",
+    candles: richCandles(
+      skeleton(
+        95,
+        seg(95, 130, 6),
+        seg(130, 112, 5),
+        seg(112, 129, 6),
+        seg(129, 108, 7),
+      ),
+      { seed: 412, residVol: 3, wickMax: 5 },
+    ),
+    markers: [
+      { label: "A", index: 6, at: "high" },
+      { label: "B", index: 11, at: "low" },
+      { label: "C", index: 17, at: "high" },
+      { label: "D", index: 23, at: "low" },
+      { label: "E", index: 24, at: "low" },
+    ],
+    prompt:
+      "An aggressive trader shorts BEFORE the breakdown. On this double top, where's the aggressive SHORT entry?",
+    choices: letters("A", "B", "C", "D", "E"),
+    answerId: "C",
+    explanation:
+      "The aggressive short sells the second peak (C) — fading the rejection at a resistance that already held once, with a tight stop just above. It beats the price of the confirmed neckline break (D) but risks the level giving way to new highs. A is the first peak, B the interim low, E is chasing.",
+  },
+  {
+    id: "bs-asc-aggressive",
+    topic: "buy-sell",
+    candles: richCandles(
+      skeleton(
+        100,
+        seg(100, 128, 5),
+        seg(128, 114, 4),
+        seg(114, 128, 4),
+        seg(128, 119, 3),
+        seg(119, 128, 3),
+        seg(128, 145, 6),
+      ),
+      { seed: 413, residVol: 3, wickMax: 5 },
+    ),
+    markers: [
+      { label: "A", index: 9, at: "low" },
+      { label: "B", index: 13, at: "high" },
+      { label: "C", index: 16, at: "low" },
+      { label: "D", index: 20, at: "high" },
+      { label: "E", index: 25, at: "high" },
+    ],
+    prompt:
+      "An aggressive trader buys the dip INSIDE the pattern. On this ascending triangle, where's the aggressive BUY?",
+    choices: letters("A", "B", "C", "D", "E"),
+    answerId: "C",
+    explanation:
+      "The aggressive entry buys the bounce off the rising support — the most recent higher low (C) — anticipating another run at resistance and the breakout, with a stop just below that low. It's a better price than the confirmed breakout (D) but risks the triangle failing. A is an earlier, lower support touch, B is into resistance, and E is chasing the breakout.",
   },
 ];
 
