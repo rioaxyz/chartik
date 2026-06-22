@@ -24,6 +24,11 @@ const TOPIC_META: { topic: Topic; blurb: string; emoji: string }[] = [
     blurb: "Cup & handle, double tops, head & shoulders, triangles, wedges, flags.",
     emoji: "📐",
   },
+  {
+    topic: "buy-sell",
+    blurb: "Pick where to buy, sell, or set a stop loss on real setups.",
+    emoji: "🎯",
+  },
 ];
 
 function countByTopic(topic: Topic): number {

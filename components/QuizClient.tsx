@@ -155,6 +155,7 @@ export default function QuizClient({ topic }: Props) {
   // status === "playing"
   const answered = selected !== null;
   const progress = ((index + (answered ? 1 : 0)) / questions.length) * 100;
+  const isMarkerQ = !!current.markers?.length;
 
   return (
     <Shell topic={topic}>
@@ -176,40 +177,74 @@ export default function QuizClient({ topic }: Props) {
 
       <div className="rounded-2xl border border-border bg-panel p-5 sm:p-6">
         <div className="rounded-xl bg-bg/60 p-3">
-          <CandlestickChart candles={current.candles} />
+          <CandlestickChart
+            candles={current.candles}
+            markers={current.markers}
+            revealCorrect={answered ? current.answerId : null}
+            revealPicked={answered ? selected : null}
+          />
         </div>
 
         <h2 className="mt-5 text-lg font-semibold">{current.prompt}</h2>
 
-        <div className="mt-4 grid gap-2.5">
-          {current.choices.map((choice) => {
-            const isAnswer = choice.id === current.answerId;
-            const isPicked = choice.id === selected;
+        {isMarkerQ ? (
+          <div className="mt-4 flex flex-wrap gap-2.5">
+            {current.choices.map((choice) => {
+              const isAnswer = choice.id === current.answerId;
+              const isPicked = choice.id === selected;
 
-            let cls =
-              "border-border bg-panelLight hover:border-accent hover:bg-[#1f2a40]";
-            if (answered) {
-              if (isAnswer) cls = "border-bull bg-bull/15 text-white";
-              else if (isPicked) cls = "border-bear bg-bear/15 text-white";
-              else cls = "border-border bg-panelLight opacity-60";
-            }
+              let cls =
+                "border-border bg-panelLight text-slate-200 hover:border-accent hover:bg-[#1f2a40]";
+              if (answered) {
+                if (isAnswer) cls = "border-bull bg-bull/15 text-white";
+                else if (isPicked) cls = "border-bear bg-bear/15 text-white";
+                else cls = "border-border bg-panelLight text-slate-400 opacity-60";
+              }
 
-            return (
-              <button
-                key={choice.id}
-                onClick={() => handleSelect(choice.id)}
-                disabled={answered}
-                className={`flex items-center justify-between rounded-xl border px-4 py-3 text-left text-sm transition ${cls}`}
-              >
-                <span>{choice.label}</span>
-                {answered && isAnswer && <span className="text-bull">✓</span>}
-                {answered && isPicked && !isAnswer && (
-                  <span className="text-bear">✗</span>
-                )}
-              </button>
-            );
-          })}
-        </div>
+              return (
+                <button
+                  key={choice.id}
+                  onClick={() => handleSelect(choice.id)}
+                  disabled={answered}
+                  aria-label={`Choice ${choice.label}`}
+                  className={`flex h-12 w-12 items-center justify-center rounded-xl border text-lg font-bold transition ${cls}`}
+                >
+                  {choice.label}
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="mt-4 grid gap-2.5">
+            {current.choices.map((choice) => {
+              const isAnswer = choice.id === current.answerId;
+              const isPicked = choice.id === selected;
+
+              let cls =
+                "border-border bg-panelLight hover:border-accent hover:bg-[#1f2a40]";
+              if (answered) {
+                if (isAnswer) cls = "border-bull bg-bull/15 text-white";
+                else if (isPicked) cls = "border-bear bg-bear/15 text-white";
+                else cls = "border-border bg-panelLight opacity-60";
+              }
+
+              return (
+                <button
+                  key={choice.id}
+                  onClick={() => handleSelect(choice.id)}
+                  disabled={answered}
+                  className={`flex items-center justify-between rounded-xl border px-4 py-3 text-left text-sm transition ${cls}`}
+                >
+                  <span>{choice.label}</span>
+                  {answered && isAnswer && <span className="text-bull">✓</span>}
+                  {answered && isPicked && !isAnswer && (
+                    <span className="text-bear">✗</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {answered && (
           <div className="mt-4 rounded-xl border border-border bg-bg/60 p-4">

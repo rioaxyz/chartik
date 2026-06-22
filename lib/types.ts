@@ -11,12 +11,26 @@ export type Topic =
   | "candle-basics"
   | "next-move"
   | "pattern"
-  | "chart-patterns";
+  | "chart-patterns"
+  | "buy-sell";
 
 /** A multiple-choice option. */
 export interface Choice {
   id: string;
   label: string;
+}
+
+/**
+ * A lettered marker drawn on the chart at a specific candle, used by the
+ * "Buy / Sell / Stop" questions where the answer is a location (A, B, C…).
+ */
+export interface Marker {
+  /** The letter shown on the chart and used as the choice id. */
+  label: string;
+  /** Index into the question's `candles` array that the marker points to. */
+  index: number;
+  /** Anchor above the candle's high or below its low. Defaults to "high". */
+  at?: "high" | "low";
 }
 
 /**
@@ -34,6 +48,8 @@ export interface Question {
   answerId: string;
   /** Shown after answering to teach the concept. */
   explanation: string;
+  /** Lettered locations overlaid on the chart (for "Buy / Sell / Stop"). */
+  markers?: Marker[];
 }
 
 /** Human-readable labels for each topic. */
@@ -42,6 +58,7 @@ export const TOPIC_LABELS: Record<Topic, string> = {
   "next-move": "What Happens Next?",
   pattern: "Candlestick Patterns",
   "chart-patterns": "Chart Patterns",
+  "buy-sell": "Buy, Sell & Stops",
 };
 
 /** Returns true if a candle closed higher than it opened (bullish/green). */
