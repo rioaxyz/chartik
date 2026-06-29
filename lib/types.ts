@@ -12,7 +12,8 @@ export type Topic =
   | "next-move"
   | "pattern"
   | "chart-patterns"
-  | "buy-sell";
+  | "buy-sell"
+  | "compare";
 
 /** A multiple-choice option. */
 export interface Choice {
@@ -50,6 +51,8 @@ export interface Question {
   explanation: string;
   /** Lettered locations overlaid on the chart (for "Buy / Sell / Stop"). */
   markers?: Marker[];
+  /** Two side-by-side setups to compare (for "Strong vs Weak"). */
+  compare?: { a: Candle[]; b: Candle[] };
 }
 
 /** Human-readable labels for each topic. */
@@ -59,6 +62,7 @@ export const TOPIC_LABELS: Record<Topic, string> = {
   pattern: "Candlestick Patterns",
   "chart-patterns": "Chart Patterns",
   "buy-sell": "Buy, Sell & Stops",
+  compare: "Strong vs Weak",
 };
 
 /** Returns true if a candle closed higher than it opened (bullish/green). */
