@@ -18,11 +18,11 @@ export default function Logo({ className = "" }: { className?: string }) {
         style={{ height: "1em", width: "0.36em", margin: "0 0.03em" }}
       >
         {/* tittle (the dot of the i) */}
-        <rect x="3.4" y="0" width="3.2" height="3.6" rx="0.9" fill="#5eead4" />
+        <rect x="3.4" y="0" width="3.2" height="3.6" rx="0.9" fill="#7c6af7" />
         {/* wick */}
-        <line x1="5" y1="6" x2="5" y2="27" stroke="#34d399" strokeWidth="2" />
+        <line x1="5" y1="6" x2="5" y2="27" stroke="#26a69a" strokeWidth="2" />
         {/* body */}
-        <rect x="1.8" y="10" width="6.4" height="13" rx="1" fill="#34d399" />
+        <rect x="1.8" y="10" width="6.4" height="13" rx="1" fill="#26a69a" />
       </svg>
       <span aria-hidden="true">k</span>
     </span>

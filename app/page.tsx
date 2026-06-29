@@ -74,7 +74,7 @@ export default function Home() {
       <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
         <Link
           href="/quiz?topic=all"
-          className="inline-block rounded-xl bg-accent px-6 py-3 font-semibold text-bg transition hover:brightness-110"
+          className="inline-block rounded-xl bg-accent px-6 py-3 font-semibold text-white transition hover:brightness-110"
         >
           Take the full quiz →
         </Link>

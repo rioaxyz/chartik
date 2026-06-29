@@ -137,7 +137,7 @@ export default function QuizClient({ topic }: Props) {
           <div className="mt-8 flex justify-center gap-3">
             <button
               onClick={restart}
-              className="rounded-xl bg-accent px-5 py-2.5 font-semibold text-bg transition hover:brightness-110"
+              className="rounded-xl bg-accent px-5 py-2.5 font-semibold text-white transition hover:brightness-110"
             >
               Try again
             </button>
@@ -273,7 +273,7 @@ export default function QuizClient({ topic }: Props) {
             <div className="mt-4">
               <button
                 onClick={handleNext}
-                className="rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-bg transition hover:brightness-110"
+                className="rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
               >
                 {index + 1 >= questions.length ? "See results →" : "Next question →"}
               </button>
