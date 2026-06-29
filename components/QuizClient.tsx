@@ -157,6 +157,7 @@ export default function QuizClient({ topic }: Props) {
   const answered = selected !== null;
   const progress = ((index + (answered ? 1 : 0)) / questions.length) * 100;
   const isMarkerQ = !!current.markers?.length;
+  const isCompare = !!current.compare;
   const docLink = docLinkFor(current.id);
 
   return (
@@ -178,18 +179,56 @@ export default function QuizClient({ topic }: Props) {
       </div>
 
       <div className="rounded-2xl border border-border bg-panel p-5 sm:p-6">
-        <div className="rounded-xl bg-bg/60 p-3">
-          <CandlestickChart
-            candles={current.candles}
-            markers={current.markers}
-            revealCorrect={answered ? current.answerId : null}
-            revealPicked={answered ? selected : null}
-          />
-        </div>
+        {isCompare ? (
+          <div className="space-y-3">
+            {(["A", "B"] as const).map((letter) => {
+              const cs =
+                letter === "A" ? current.compare!.a : current.compare!.b;
+              const isAns = answered && current.answerId === letter;
+              return (
+                <div
+                  key={letter}
+                  className={`rounded-xl border bg-bg/60 p-2 transition ${
+                    answered
+                      ? isAns
+                        ? "border-bull"
+                        : "border-border opacity-60"
+                      : "border-border"
+                  }`}
+                >
+                  <div className="mb-1 flex items-center justify-between px-1.5 pt-1">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-md bg-panelLight text-xs font-bold text-slate-200">
+                      {letter}
+                    </span>
+                    {answered && (
+                      <span
+                        className={`text-xs font-semibold ${
+                          isAns ? "text-bull" : "text-slate-400"
+                        }`}
+                      >
+                        {isAns ? "Stronger setup ✓" : "Weaker setup"}
+                      </span>
+                    )}
+                  </div>
+                  <CandlestickChart candles={cs} height={190} />
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="rounded-xl bg-bg/60 p-3">
+            <CandlestickChart
+              candles={current.candles}
+              markers={current.markers}
+              revealCorrect={answered ? current.answerId : null}
+              revealPicked={answered ? selected : null}
+            />
+          </div>
+        )}
 
         <h2 className="mt-5 text-lg font-semibold">{current.prompt}</h2>
 
-        {isMarkerQ ? (
+        {isMarkerQ || isCompare ? (
           <div className="mt-4 flex flex-wrap gap-2.5">
             {current.choices.map((choice) => {
               const isAnswer = choice.id === current.answerId;

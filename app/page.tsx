@@ -29,6 +29,11 @@ const TOPIC_META: { topic: Topic; blurb: string; emoji: string }[] = [
     blurb: "Pick where to buy, sell, or set a stop loss on real setups.",
     emoji: "🎯",
   },
+  {
+    topic: "compare",
+    blurb: "Two versions of a pattern — spot the stronger setup vs the weaker one.",
+    emoji: "⚖️",
+  },
 ];
 
 function countByTopic(topic: Topic): number {

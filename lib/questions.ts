@@ -1404,6 +1404,281 @@ export const QUESTIONS: Question[] = [
     explanation:
       "The aggressive entry buys the bounce off the rising support — the most recent higher low (C) — anticipating another run at resistance and the breakout, with a stop just below that low. It's a better price than the confirmed breakout (D) but risks the triangle failing. A is an earlier, lower support touch, B is into resistance, and E is chasing the breakout.",
   },
+
+  // ---- Topic 6: Strong vs Weak — compare two setups of the same pattern ----
+  {
+    id: "cmp-asc-triangle",
+    topic: "compare",
+    candles: [],
+    compare: {
+      a: richCandles(
+        skeleton(
+          115,
+          seg(115, 127, 4),
+          seg(127, 114, 3),
+          seg(114, 126, 3),
+          seg(126, 116, 3),
+          seg(116, 126, 3),
+          seg(126, 115, 3),
+          seg(115, 130, 4),
+        ),
+        { seed: 501, residVol: 5 },
+      ),
+      b: richCandles(
+        skeleton(
+          108,
+          seg(108, 130, 4),
+          seg(130, 116, 3),
+          seg(116, 130, 3),
+          seg(130, 121, 3),
+          seg(121, 130, 3),
+          seg(130, 125, 2),
+          seg(125, 145, 5),
+        ),
+        { seed: 502, residVol: 2.5 },
+      ),
+    },
+    prompt: "Both show an ascending triangle. Which is the STRONGER setup?",
+    choices: letters("A", "B"),
+    answerId: "B",
+    explanation:
+      "B is stronger: clearly rising higher lows press into a flat resistance and tighten toward the apex before a decisive breakout. A's lows are flat (really a choppy range) with a weak, hesitant breakout — far less reliable.",
+  },
+  {
+    id: "cmp-bull-flag",
+    topic: "compare",
+    candles: [],
+    compare: {
+      a: richCandles(
+        skeleton(
+          90,
+          seg(90, 140, 6),
+          seg(140, 134, 3),
+          seg(134, 137, 2),
+          seg(137, 132, 2),
+          seg(132, 135, 2),
+          seg(135, 160, 5),
+        ),
+        { seed: 503, residVol: 2.5 },
+      ),
+      b: richCandles(
+        skeleton(
+          105,
+          seg(105, 126, 5),
+          seg(126, 112, 3),
+          seg(112, 118, 2),
+          seg(118, 110, 3),
+          seg(110, 115, 2),
+          seg(115, 128, 4),
+        ),
+        { seed: 504, residVol: 5 },
+      ),
+    },
+    prompt: "Both are bull flags. Which is the STRONGER setup?",
+    choices: letters("A", "B"),
+    answerId: "A",
+    explanation:
+      "A is stronger — a tall, steep pole and a tight, shallow flag that barely retraces, coiling energy for the next leg up. B's pole is short and the flag is deep and sloppy, giving back most of the gain; flags that retrace that much often fail.",
+  },
+  {
+    id: "cmp-cup",
+    topic: "compare",
+    candles: [],
+    compare: {
+      a: richCandles(
+        skeleton(
+          132,
+          seg(132, 100, 7),
+          seg(100, 130, 7),
+          seg(130, 114, 4),
+          seg(114, 118, 2),
+          seg(118, 136, 4),
+        ),
+        { seed: 505, residVol: 4 },
+      ),
+      b: richCandles(
+        skeleton(
+          130,
+          curve(130, 128, 16, -32),
+          seg(128, 122, 4),
+          seg(122, 125, 2),
+          seg(125, 144, 5),
+        ),
+        { seed: 506, residVol: 2.5 },
+      ),
+    },
+    prompt: "Both are cup & handle setups. Which is the STRONGER one?",
+    choices: letters("A", "B"),
+    answerId: "B",
+    explanation:
+      "B is stronger: a smooth, rounded base (gradual accumulation) with a shallow handle near the rim. A is a sharp 'V' recovery with a deep handle that retraces over a third of the cup — both weaken the pattern.",
+  },
+  {
+    id: "cmp-double-bottom",
+    topic: "compare",
+    candles: [],
+    compare: {
+      a: richCandles(
+        skeleton(140, seg(140, 106, 6), seg(106, 124, 5), seg(124, 107, 5), seg(107, 128, 6)),
+        { seed: 507, residVol: 2.5 },
+      ),
+      b: richCandles(
+        skeleton(140, seg(140, 108, 6), seg(108, 122, 5), seg(122, 94, 6), seg(94, 110, 5)),
+        { seed: 508, residVol: 5 },
+      ),
+    },
+    prompt: "Both look like double bottoms. Which is the STRONGER setup?",
+    choices: letters("A", "B"),
+    answerId: "A",
+    explanation:
+      "A is stronger — two lows at the same level (support held twice) followed by a break above the neckline. B's second low is well below the first; a lower low with a weak bounce signals continued selling, not a reversal.",
+  },
+  {
+    id: "cmp-breakout",
+    topic: "compare",
+    candles: [],
+    compare: {
+      a: richCandles(
+        skeleton(
+          115,
+          seg(115, 127, 3),
+          seg(127, 118, 3),
+          seg(118, 128, 3),
+          seg(128, 120, 3),
+          seg(120, 131, 2),
+          seg(131, 114, 5),
+        ),
+        { seed: 509, residVol: 4 },
+      ),
+      b: richCandles(
+        skeleton(
+          115,
+          seg(115, 127, 3),
+          seg(127, 118, 3),
+          seg(118, 128, 3),
+          seg(128, 120, 3),
+          seg(120, 128, 2),
+          seg(128, 148, 6),
+        ),
+        { seed: 510, residVol: 2.5 },
+      ),
+    },
+    prompt: "Both test the same resistance. Which is the STRONGER breakout?",
+    choices: letters("A", "B"),
+    answerId: "B",
+    explanation:
+      "B is the real breakout — price closes decisively above resistance with strong follow-through. A only pokes above the level then snaps back below and falls; that false breakout (fakeout) traps buyers who chased it.",
+  },
+  {
+    id: "cmp-hns",
+    topic: "compare",
+    candles: [],
+    compare: {
+      a: richCandles(
+        skeleton(
+          88,
+          seg(88, 116, 5),
+          seg(116, 104, 4),
+          seg(104, 138, 5),
+          seg(138, 104, 5),
+          seg(104, 116, 4),
+          seg(116, 90, 6),
+        ),
+        { seed: 511, residVol: 2.5 },
+      ),
+      b: richCandles(
+        skeleton(
+          92,
+          seg(92, 122, 5),
+          seg(122, 108, 4),
+          seg(108, 126, 5),
+          seg(126, 108, 5),
+          seg(108, 122, 4),
+          seg(122, 110, 6),
+        ),
+        { seed: 512, residVol: 5 },
+      ),
+    },
+    prompt: "Both are head & shoulders. Which is the STRONGER setup?",
+    choices: letters("A", "B"),
+    answerId: "A",
+    explanation:
+      "A is stronger — a clearly higher head between two symmetric shoulders, then a clean neckline break. B's 'head' is barely above the shoulders (almost a flat triple top) and the break is shallow, so the reversal signal is weak.",
+  },
+  {
+    id: "cmp-desc-triangle",
+    topic: "compare",
+    candles: [],
+    compare: {
+      a: richCandles(
+        skeleton(
+          118,
+          seg(118, 103, 4),
+          seg(103, 114, 3),
+          seg(114, 104, 3),
+          seg(104, 113, 3),
+          seg(113, 102, 3),
+          seg(102, 112, 3),
+          seg(112, 98, 4),
+        ),
+        { seed: 513, residVol: 5 },
+      ),
+      b: richCandles(
+        skeleton(
+          122,
+          seg(122, 100, 4),
+          seg(100, 118, 3),
+          seg(118, 100, 3),
+          seg(100, 112, 3),
+          seg(112, 100, 3),
+          seg(100, 108, 2),
+          seg(108, 86, 5),
+        ),
+        { seed: 514, residVol: 2.5 },
+      ),
+    },
+    prompt: "Both are descending triangles. Which is the STRONGER setup?",
+    choices: letters("A", "B"),
+    answerId: "B",
+    explanation:
+      "B is stronger — a flat support tested repeatedly with steadily lower highs, then a decisive breakdown. A's support drifts and the action is choppy with a feeble break, so it's much less trustworthy.",
+  },
+  {
+    id: "cmp-bear-flag",
+    topic: "compare",
+    candles: [],
+    compare: {
+      a: richCandles(
+        skeleton(
+          150,
+          seg(150, 100, 6),
+          seg(100, 107, 3),
+          seg(107, 104, 2),
+          seg(104, 109, 2),
+          seg(109, 106, 2),
+          seg(106, 82, 5),
+        ),
+        { seed: 515, residVol: 2.5 },
+      ),
+      b: richCandles(
+        skeleton(
+          135,
+          seg(135, 116, 5),
+          seg(116, 128, 3),
+          seg(128, 120, 2),
+          seg(120, 130, 3),
+          seg(130, 123, 2),
+          seg(123, 112, 4),
+        ),
+        { seed: 516, residVol: 5 },
+      ),
+    },
+    prompt: "Both are bear flags. Which is the STRONGER setup?",
+    choices: letters("A", "B"),
+    answerId: "A",
+    explanation:
+      "A is stronger — a steep, clean down-pole and a tight flag that barely bounces, then a breakdown. B's pole is shallow and the 'flag' bounces deeply against the trend, which often precedes a failure.",
+  },
 ];
 
 /** Return all questions for a given topic, or all questions if none given. */
