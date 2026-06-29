@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import CandlestickChart from "./CandlestickChart";
 import Logo from "./Logo";
+import { docLinkFor } from "@/lib/docLinks";
 import { Question, TOPIC_LABELS, Topic } from "@/lib/types";
 
 interface Props {
@@ -136,7 +137,7 @@ export default function QuizClient({ topic }: Props) {
           <div className="mt-8 flex justify-center gap-3">
             <button
               onClick={restart}
-              className="rounded-xl bg-accent px-5 py-2.5 font-semibold text-bg transition hover:brightness-110"
+              className="rounded-xl bg-accent px-5 py-2.5 font-semibold text-white transition hover:brightness-110"
             >
               Try again
             </button>
@@ -156,6 +157,7 @@ export default function QuizClient({ topic }: Props) {
   const answered = selected !== null;
   const progress = ((index + (answered ? 1 : 0)) / questions.length) * 100;
   const isMarkerQ = !!current.markers?.length;
+  const docLink = docLinkFor(current.id);
 
   return (
     <Shell topic={topic}>
@@ -258,12 +260,24 @@ export default function QuizClient({ topic }: Props) {
             <p className="mt-1.5 text-sm leading-relaxed text-slate-300">
               {current.explanation}
             </p>
-            <button
-              onClick={handleNext}
-              className="mt-4 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-bg transition hover:brightness-110"
-            >
-              {index + 1 >= questions.length ? "See results →" : "Next question →"}
-            </button>
+            {docLink && (
+              <Link
+                href={`/docs/${docLink.slug}${
+                  docLink.v != null ? `?v=${docLink.v}` : ""
+                }`}
+                className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-accent hover:underline"
+              >
+                📖 Learn more about {docLink.label} →
+              </Link>
+            )}
+            <div className="mt-4">
+              <button
+                onClick={handleNext}
+                className="rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
+              >
+                {index + 1 >= questions.length ? "See results →" : "Next question →"}
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -290,9 +304,17 @@ function Shell({
           <span className="text-sm">←</span>
           <Logo className="text-sm" />
         </Link>
-        <span className="rounded-full border border-border bg-panel px-3 py-1 text-xs text-slate-300">
-          {label}
-        </span>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/docs"
+            className="text-xs text-slate-400 hover:text-accent"
+          >
+            📚 Learn
+          </Link>
+          <span className="rounded-full border border-border bg-panel px-3 py-1 text-xs text-slate-300">
+            {label}
+          </span>
+        </div>
       </div>
       {children}
     </main>

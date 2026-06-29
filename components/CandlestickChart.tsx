@@ -12,11 +12,11 @@ interface Props {
   revealPicked?: string | null;
 }
 
-const BULL = "#34d399";
-const BEAR = "#f87171";
-const ACCENT = "#5eead4";
-const GOOD = "#34d399";
-const BAD = "#f87171";
+const BULL = "#26a69a";
+const BEAR = "#ef5350";
+const ACCENT = "#7c6af7";
+const GOOD = "#26a69a";
+const BAD = "#ef5350";
 
 /**
  * Renders an OHLC series as an SVG candlestick chart. Pure/deterministic — the
@@ -80,7 +80,7 @@ export default function CandlestickChart({
               x2={width - padX}
               y1={g.yPos}
               y2={g.yPos}
-              stroke="#28392f"
+              stroke="#252d3d"
               strokeWidth={1}
               strokeDasharray="3 4"
             />
@@ -88,7 +88,7 @@ export default function CandlestickChart({
               x={width - padX + 2}
               y={g.yPos + 3}
               fontSize={9}
-              fill="#88a298"
+              fill="#7b8499"
               fontFamily="ui-monospace, monospace"
             >
               {g.price.toFixed(0)}

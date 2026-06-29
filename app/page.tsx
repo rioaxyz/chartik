@@ -71,17 +71,23 @@ export default function Home() {
         ))}
       </section>
 
-      <div className="mt-10 text-center">
+      <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
         <Link
           href="/quiz?topic=all"
-          className="inline-block rounded-xl bg-accent px-6 py-3 font-semibold text-bg transition hover:brightness-110"
+          className="inline-block rounded-xl bg-accent px-6 py-3 font-semibold text-white transition hover:brightness-110"
         >
           Take the full quiz →
         </Link>
-        <p className="mt-3 text-xs text-slate-500">
-          {QUESTIONS.length} questions across all topics
-        </p>
+        <Link
+          href="/docs"
+          className="inline-block rounded-xl border border-border px-6 py-3 font-semibold text-slate-300 transition hover:border-accent hover:bg-panelLight"
+        >
+          📚 Learn the patterns
+        </Link>
       </div>
+      <p className="mt-3 text-center text-xs text-slate-500">
+        {QUESTIONS.length} questions across all topics
+      </p>
     </main>
   );
 }

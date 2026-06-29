@@ -11,7 +11,7 @@ export default function AppleIcon() {
         style={{
           width: "100%",
           height: "100%",
-          background: "#08120f",
+          background: "#0b0e14",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -30,23 +30,23 @@ export default function AppleIcon() {
               width: 18,
               height: 18,
               borderRadius: 5,
-              background: "#5eead4",
+              background: "#7c6af7",
               marginBottom: 10,
             }}
           />
           {/* upper wick */}
-          <div style={{ width: 14, height: 16, background: "#34d399" }} />
+          <div style={{ width: 14, height: 16, background: "#26a69a" }} />
           {/* body */}
           <div
             style={{
               width: 52,
               height: 64,
               borderRadius: 8,
-              background: "#34d399",
+              background: "#26a69a",
             }}
           />
           {/* lower wick */}
-          <div style={{ width: 14, height: 16, background: "#34d399" }} />
+          <div style={{ width: 14, height: 16, background: "#26a69a" }} />
         </div>
       </div>
     ),

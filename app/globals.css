@@ -8,8 +8,8 @@
 
 html,
 body {
-  background-color: #08120f;
-  color: #e2ece7;
+  background-color: #0b0e14;
+  color: #e8eaf0;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -17,8 +17,277 @@ body {
 body {
   background-image: radial-gradient(
     900px 500px at 50% -10%,
-    rgba(94, 234, 212, 0.07),
+    rgba(124, 106, 247, 0.1),
     transparent 70%
   );
   min-height: 100vh;
+}
+
+/* ============================================================ *
+ * Docs / learning section — its own palette (purple accent,
+ * buy-green / stop-orange / target-blue). Scoped to .docs-scope
+ * so it never collides with the mint quiz theme. Add new pattern
+ * guides by reusing these classes (see lib/docs.ts).
+ * ============================================================ */
+.docs-scope {
+  --bg: #0b0e14;
+  --surface: #131720;
+  --surface2: #1a2030;
+  --border: #252d3d;
+  --bull: #26a69a;
+  --bear: #ef5350;
+  --buy: #00e676;
+  --stop: #ff6d00;
+  --target: #40c4ff;
+  --text: #e8eaf0;
+  --muted: #7b8499;
+  --accent: #7c6af7;
+  --line: #facc15;
+
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+.docs-scope svg text {
+  font-family: "Space Mono", ui-monospace, monospace;
+}
+
+.docs-wrap {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 28px 16px 56px;
+}
+
+.docs-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.docs-back {
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.docs-back:hover {
+  color: var(--accent);
+}
+
+.docs-head {
+  text-align: center;
+  margin-bottom: 36px;
+}
+.docs-head h1 {
+  font-size: clamp(1.5rem, 4vw, 2.1rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+.docs-head p {
+  color: var(--muted);
+  margin-top: 8px;
+  font-size: 0.9rem;
+}
+
+/* index grid of doc cards */
+.docs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+.doc-card {
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 22px;
+  text-decoration: none;
+  color: var(--text);
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    transform 0.2s;
+}
+.doc-card:hover {
+  border-color: var(--accent);
+  background: var(--surface2);
+  transform: translateY(-2px);
+}
+.doc-card .doc-icon {
+  font-size: 1.7rem;
+}
+.doc-card h2 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-top: 12px;
+}
+.doc-card p {
+  color: var(--muted);
+  font-size: 0.82rem;
+  margin-top: 6px;
+  line-height: 1.5;
+}
+.doc-card .doc-go {
+  margin-top: 14px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+.docs-empty {
+  color: var(--muted);
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+/* tabs */
+.docs-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+.docs-tab {
+  padding: 10px 22px;
+  border-radius: 6px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.02em;
+}
+.docs-tab:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+.docs-tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.chart-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+
+/* metric cards */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px;
+}
+.card-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.card-value {
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 1rem;
+  font-weight: 700;
+}
+.card-desc {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+.card-desc strong {
+  color: var(--text);
+}
+.card.buy .card-value {
+  color: var(--buy);
+}
+.card.short .card-value {
+  color: var(--bear);
+}
+.card.neutral .card-value {
+  color: var(--line);
+}
+.card.info .card-value {
+  color: var(--target);
+}
+.card.stop .card-value {
+  color: var(--stop);
+}
+.card.target .card-value {
+  color: var(--target);
+}
+.card.rr .card-value {
+  color: var(--accent);
+}
+
+/* rules */
+.rules {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+}
+.rules h3 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+.rule {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 14px;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.rule:last-child {
+  margin-bottom: 0;
+}
+.rule-num {
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 0.7rem;
+  color: var(--accent);
+  background: rgba(124, 106, 247, 0.12);
+  border-radius: 4px;
+  padding: 2px 7px;
+  height: fit-content;
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+.rule strong {
+  color: var(--text);
+}
+.rule em {
+  color: var(--text);
+  font-style: italic;
+}
+
+.docs-disclaimer {
+  margin-top: 24px;
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-align: center;
+  opacity: 0.6;
+  line-height: 1.6;
 }
